@@ -3,3 +3,5 @@
 Server/appsettings.Development.json
 Server/appsettings.json
 Server/bin
+WindmillTests/bin
+WindmillTests/obj
