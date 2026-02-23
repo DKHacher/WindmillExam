@@ -2,10 +2,19 @@
 
 public class WindmillTelemetryDTO
 {
-    public int windmillId { get; set; }
-    public int windSpeed { get; set; }
-    public int powerOutput { get; set; }
-    public int temperature { get; set; }
-    public DateTime Timestamp { get; set; }
-    
+    public string turbineId { get; set; }
+    public string turbineName { get; set; }
+    public string farmId { get; set; }
+    public DateTime timestamp { get; set; }
+    public float windSpeed { get; set; }
+    public float windDirection { get; set; }
+    public float ambientTemperatur { get; set; }
+    public float rotorSpeed { get; set; }
+    public float powerOutput { get; set; }
+    public float nacelleDirection { get; set; }
+    public float bladePitch { get; set; }
+    public float generatorTemp { get; set; }
+    public float gearboxTemp { get; set; }
+    public float vibration { get; set; }
+    public string status { get; set; }
 }
