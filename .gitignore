@@ -1,0 +1,4 @@
+/Server/obj
+/.idea
+Server/appsettings.Development.json
+Server/appsettings.json
