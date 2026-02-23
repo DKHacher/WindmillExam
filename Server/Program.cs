@@ -1,3 +1,4 @@
+using backend;
 using Microsoft.EntityFrameworkCore;
 using Mqtt.Controllers;
 using StackExchange.Redis;
@@ -68,11 +69,11 @@ app.MapControllers();
 app.UseOpenApi();
 app.UseSwaggerUi();
 
-// Generate TypeScript client automatically missing the generation file TODO: fix
-//app.GenerateApiClientsFromOpenApi("../frontend/src/generated-ts-client.ts", "./openapi.json").GetAwaiter().GetResult();
+// Generate TypeScript client automatically 
+app.GenerateApiClientsFromOpenApi("../client/src/generated-ts-client.ts", "./openapi.json").GetAwaiter().GetResult();
 
 // ===== MQTT Client ===== //currently commented out 
-//var mqtt = app.Services.GetRequiredService<IMqttClientService>();
-//await mqtt.ConnectAsync("broker.hivemq.com", 1883);
+var mqtt = app.Services.GetRequiredService<IMqttClientService>();
+await mqtt.ConnectAsync("broker.hivemq.com", 1883);
 
 app.Run();
