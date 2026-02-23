@@ -5,3 +5,5 @@ Server/appsettings.json
 Server/bin
 WindmillTests/bin
 WindmillTests/obj
+/WindmillTests/obj
+/WindmillTests/obj
