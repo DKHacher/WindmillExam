@@ -2,6 +2,7 @@
 
 public class WindmillAlertEntity
 {
+    public Guid Id { get; set; }
     public string turbineId { get; set; }
     public string farmId { get; set; }
     public DateTime timestamp { get; set; }
