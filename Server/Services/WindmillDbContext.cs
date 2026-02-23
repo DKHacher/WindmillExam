@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using Server.Entities;
 namespace Server.Services;
 
 public class WindmillDbContext : DbContext
@@ -9,5 +9,6 @@ public class WindmillDbContext : DbContext
     {
     }
 
-    //public DbSet<Telemetry> Telemetries => Set<Telemetry>(); //TODO: add entities and dbsets of those entities 
+    public DbSet<WindmillTelemetryEntity> Telemetries => Set<WindmillTelemetryEntity>(); 
+    public DbSet<WindmillAlertEntity> Alerts => Set<WindmillAlertEntity>();
 }
