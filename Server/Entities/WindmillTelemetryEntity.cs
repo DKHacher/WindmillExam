@@ -2,6 +2,7 @@
 
 public class WindmillTelemetryEntity
 {
+    public Guid Id { get; set; }
     public string turbineId { get; set; }
     public string turbineName { get; set; }
     public string farmId { get; set; }
