@@ -90,31 +90,4 @@ public class WindmillController : RealtimeControllerBase
 
         return new RealtimeListenResponse<List<WindmillTelemetryDTO>>(group, initialData);
     }
-
-    [HttpPost(nameof(AddTelemetry))]
-    public async Task<IActionResult> AddTelemetry([FromBody] WindmillTelemetryDTO telemetry)
-    {
-        var entity = new WindmillTelemetryEntity
-        {
-            turbineId = telemetry.turbineId,
-            turbineName = telemetry.turbineName,
-            farmId = telemetry.farmId,
-            timestamp = telemetry.timestamp,
-            windSpeed = telemetry.windSpeed,
-            windDirection = telemetry.windDirection,
-            ambientTemperatur = telemetry.ambientTemperatur,
-            rotorSpeed = telemetry.rotorSpeed,
-            powerOutput = telemetry.powerOutput,
-            nacelleDirection = telemetry.nacelleDirection,
-            bladePitch = telemetry.bladePitch,
-            generatorTemp = telemetry.generatorTemp,
-            gearboxTemp = telemetry.gearboxTemp,
-            vibration = telemetry.vibration,
-            status = telemetry.status
-        };
-        _ctx.Telemetries.Add(entity);
-        await _ctx.SaveChangesAsync();
-
-        return Ok();
-    }
 }
