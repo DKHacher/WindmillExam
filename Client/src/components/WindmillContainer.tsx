@@ -1,9 +1,10 @@
 ﻿import { useState } from "react";
 import windmill from "../assets/windmill.jpg";
 import WindmillInformationPage from "./WindmillInformationPage.tsx";
-// import { useAtom } from "jotai";
-// import { telemetryAtom } from "../atoms/telemetryAtom.ts";
 import {useMqtt} from "../contexts/MqttContext.tsx";
+import {telemetryAtom} from "../atoms/telemetryAtom.ts";
+import {useAtom} from "jotai";
+import {turbineTelemetryAtom} from "../atoms/turbineTelemetryAtom.ts";
 
 type Props = {
     turbineId: string;
@@ -11,19 +12,18 @@ type Props = {
 
 function WindmillContainer({ turbineId }: Props) {
     const [showInfo, setShowInfo] = useState(false);
-    // const [telemetry] = useAtom(telemetryAtom);
+    const [telemetry] = useAtom(telemetryAtom);
     const { mqttClient } = useMqtt();
-
-    // const turbineTelemetry = telemetry.filter(t => t.turbineId === turbineId)
+    const [, setTurbineTelemetry] = useAtom(turbineTelemetryAtom);
 
     function start() {
-        mqttClient?.publish(`turbine/control/${turbineId}`, JSON.stringify({
+        mqttClient?.publish(`farm/#/windmill/${turbineId}/command`, JSON.stringify({
             action: "start"
         }));
     }
 
     function stop() {
-        mqttClient?.publish(`turbine/control/${turbineId}`, JSON.stringify({
+        mqttClient?.publish(`farm/#/windmill/${turbineId}/command`, JSON.stringify({
             action: "stop",
             reason: "maintenance"
         }))
@@ -33,7 +33,10 @@ function WindmillContainer({ turbineId }: Props) {
         <>
             <div
                 className="windmill-graphic"
-                onClick={() => setShowInfo(prev => !prev)}
+                onClick={() => {
+                    setTurbineTelemetry(telemetry.filter(t => t.turbineId === turbineId))
+                    setShowInfo(prev => !prev);
+                }}
                 style={{ cursor: "pointer" }}
             >
                 <img src={windmill} alt="Windmill" />

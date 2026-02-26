@@ -19,7 +19,7 @@ function App() {
 
         clientRef.current.on("connect", () => {
             console.log("mqtt connected");
-            clientRef.current?.subscribe("turbine/telemetry/#", (err) => {
+            clientRef.current?.subscribe("farm/#/windmill/{turbineId}/telemetry", (err) => {
                 if (err) console.error("subscription error:", err);
             });
         });
