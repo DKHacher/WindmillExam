@@ -1,0 +1,12 @@
+.rotate-center {
+    animation: rotate-center linear infinite;
+}
+
+@keyframes rotate-center {
+    0% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+    100% {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}
