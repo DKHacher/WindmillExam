@@ -70,7 +70,7 @@ app.UseOpenApi();
 app.UseSwaggerUi();
 
 // Generate TypeScript client automatically 
-app.GenerateApiClientsFromOpenApi("../client/src/generated-ts-client.ts", "./openapi.json").GetAwaiter().GetResult();
+app.GenerateApiClientsFromOpenApi("../client/src/services/generated-ts-client.ts", "./openapi.json").GetAwaiter().GetResult();
 
 // ===== MQTT Client ===== //currently commented out 
 var mqtt = app.Services.GetRequiredService<IMqttClientService>();
