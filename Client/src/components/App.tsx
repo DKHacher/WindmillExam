@@ -1,6 +1,5 @@
-import './App.css'
 import Dashboard from "./Dashboard.tsx";
-import '../animations.css'
+import '../animation.css'
 
 function App() {
 

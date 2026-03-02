@@ -1,15 +1,13 @@
-﻿import {useEffect, useState} from "react";
+﻿import { useEffect, useState } from "react";
 import WindTurbine from "./WindTurbine.tsx";
 import TurbineDetails from "./TurbineDetails.tsx";
-import {useAtom} from "jotai/react/useAtom";
-import {telemetryAtom} from "../atoms/telemetryAtom.ts";
-import {restClient, sse} from "../services/sse.ts";
-import {WindmillTelemetryDTO} from "../services/generated-ts-client.ts";
+import { telemetryAtom } from "../atoms/telemetryAtom.ts";
+import { restClient, sse } from "../services/sse.ts";
+import { WindmillTelemetryDTO } from "../services/generated-ts-client.ts";
+import { useAtom } from "jotai";
 
 function Dashboard() {
-    const [windSpeed, setWindSpeed] = useState<number>(15);
     const [selectedTurbine, setSelectedTurbine] = useState<WindmillTelemetryDTO | null>(null);
-
     const [telemetry, setTelemetry] = useAtom(telemetryAtom);
 
     useEffect(() => {
@@ -40,18 +38,6 @@ function Dashboard() {
                     onClose={() => setSelectedTurbine(null)}
                 />
             )}
-
-
-            <div style={{marginTop: "20px"}}>
-                <input
-                    type="range"
-                    min="0"
-                    max="25"
-                    value={windSpeed}
-                    onChange={(e) => setWindSpeed(Number(e.target.value))}
-                />
-                <p>Wind Speed: {windSpeed} m/s</p>
-            </div>
         </div>
     );
 };
