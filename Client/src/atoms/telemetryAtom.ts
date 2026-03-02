@@ -1,4 +1,4 @@
 ﻿import { atom } from 'jotai';
-import {Telemetry} from "../types/telemetry.ts";
+import {WindmillTelemetryDTO} from "../services/generated-ts-client.ts";
 
-export const telemetryAtom = atom<Telemetry[]>([]);
+export const telemetryAtom = atom<WindmillTelemetryDTO[]>([]);
