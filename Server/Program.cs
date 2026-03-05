@@ -19,10 +19,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     var redisConnection = configuration.GetConnectionString("Redis")
                           ?? throw new InvalidOperationException("Redis connection string missing");
 
-    var options = StackExchange.Redis.ConfigurationOptions.Parse(redisConnection);
+    var options = ConfigurationOptions.Parse(redisConnection);
     options.AbortOnConnectFail = false; // recommended for cloud Redis
 
-    return StackExchange.Redis.ConnectionMultiplexer.Connect(options);
+    return ConnectionMultiplexer.Connect(options);
 });
 
 
@@ -42,7 +42,16 @@ builder.Services.AddMqttControllers();
 builder.Services.AddControllers();
 
 // ===== OpenAPI / Swagger =====
-builder.Services.AddOpenApiDocument();
+builder.Services.AddOpenApiDocument(config =>
+{
+    config.AddSecurity("JWT", new OpenApiSecurityScheme
+    {
+        Type = OpenApiSecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Enter JWT token",
+    });
+});
 
 // ===== CORS =====
 builder.Services.AddCors();
