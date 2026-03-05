@@ -81,7 +81,7 @@ app.UseSwaggerUi();
 // Generate TypeScript client automatically 
 app.GenerateApiClientsFromOpenApi("../client/src/services/generated-ts-client.ts", "./openapi.json").GetAwaiter().GetResult();
 
-// ===== MQTT Client ===== //currently commented out 
+// ===== MQTT Client ===== 
 var mqtt = app.Services.GetRequiredService<IMqttClientService>();
 await mqtt.ConnectAsync("broker.hivemq.com", 1883);
 

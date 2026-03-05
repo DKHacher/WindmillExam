@@ -58,4 +58,14 @@ public class WindmillController(
         var initial = await db.Alerts.ToListAsync();
         return new RealtimeListenResponse<List<WindmillAlertEntity>>(group, initial);
     }
+    
+    [HttpPost(nameof(StartTurbine))]
+    public async Task StartTurbine([FromQuery] string connectionId)
+    {
+        if (string.IsNullOrEmpty(connectionId))
+            throw new ArgumentException("ConnectionId is required");
+        
+        
+
+    }
 }
