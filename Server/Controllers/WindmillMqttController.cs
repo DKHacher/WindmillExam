@@ -1,5 +1,8 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Mqtt.Controllers;
+using NSwag.CodeGeneration;
 using Server.Entities;
 using Server.Services;
 
@@ -7,64 +10,99 @@ using Server.Services;
 namespace Server.Controllers;
 
 
-public class WindmillMqttController(
-    ILogger<WindmillMqttController> logger,
-    WindmillDbContext ctx,
-    IMqttClientService mqttService)
+public class WindmillMqttController : MqttController
 {
-    private readonly IMqttClientService mqttService = mqttService; // <-- inject the singleton
+    private readonly IMqttClientService _mqttService;
+    private readonly IMqttCommandService _mqttCommandService;
+    private readonly ILogger<WindmillMqttController> _logger;
+    private readonly IDbContextFactory<WindmillDbContext> _ctxFactory;
 
+    public WindmillMqttController(
+        ILogger<WindmillMqttController> logger,
+        IDbContextFactory<WindmillDbContext> ctx,
+        IMqttClientService mqttService,
+        IMqttCommandService mqttCommandService)
+    {
+        _logger = logger;
+        _ctxFactory = ctx;
+        _mqttService = mqttService;
+        _mqttCommandService = mqttCommandService;
+        _mqttCommandService.RegisterHandler(CommandFromMediatorAsync);
+    }
+    
+    public async Task CommandFromMediatorAsync(string turbineId, string action, string payload)
+    {
+        var command = new Commands
+        {
+            action = action,
+            args = payload
+        };
+
+        await CommandMqtt(command, turbineId);
+    }
+    
+    
     [MqttRoute("farm/WindmillFarm/windmill/{turbineId}/telemetry")]
     public async Task ListenForTelemetries(WindmillTelemetryEntity telemetry, string turbineId)
     {
-        logger.LogInformation(JsonSerializer.Serialize(telemetry));
+        _logger.LogInformation(JsonSerializer.Serialize(telemetry));
         telemetry.Id = Guid.NewGuid();
-        ctx.Telemetries.Add(telemetry);
-        await ctx.SaveChangesAsync();
+        try
+        {
+            using var ctx = _ctxFactory.CreateDbContext();
+            ctx.Telemetries.Add(telemetry);
+            await ctx.SaveChangesAsync();
+            _logger.LogInformation("Telemetry saved successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save telemetry to DB");
+        }
     }
     [MqttRoute("farm/WindmillFarm/windmill/{turbineId}/alert")]
     public async Task ListenForAlerts(WindmillAlertEntity alert, string turbineId)
     {
-        logger.LogInformation(JsonSerializer.Serialize(alert));
+        _logger.LogInformation(JsonSerializer.Serialize(alert));
         alert.Id = Guid.NewGuid();
-        ctx.Alerts.Add(alert);
-        await ctx.SaveChangesAsync();
+        try
+        {
+            using var ctx = _ctxFactory.CreateDbContext();
+            ctx.Alerts.Add(alert);
+            await ctx.SaveChangesAsync();
+            _logger.LogInformation("Alert saved successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save alert to DB");
+        }
     }
     
-    [MqttRoute("farm/WindmillFarm/windmill/{turbineId}/command")]
+    [ MqttRoute("farm/WindmillFarm/windmill/{turbineId}/command") ]
     public async Task CommandMqtt(Commands command, string turbineId)
     {
-        // Assign ID and timestamp
         command.id = Guid.NewGuid();
         command.turbineId = turbineId;
         command.issuedAt = DateTime.UtcNow.ToString("o");
 
-        logger.LogInformation("Command received: {Command}", JsonSerializer.Serialize(command));
+        string payload = command.args; // already JSON string from frontend
 
-        // Validate action
-        var allowedActions = new[] { "Start", "Stop", "Set blade pitch", "Set report interval" };
-        if (!allowedActions.Contains(command.action))
-        {
-            logger.LogWarning("Invalid command action: {Action}", command.action);
-            return;
-        }
-
-        // Publish to MQTT
-        if (mqttService.IsConnected)
+        if (_mqttService.IsConnected)
         {
             var topic = $"farm/WindmillFarm/windmill/{turbineId}/command";
-            var payload = JsonSerializer.Serialize(new { action = command.action, args = command.args });
-
-            await mqttService.PublishAsync(topic, payload);
-            logger.LogInformation("Command published to MQTT topic {Topic}", topic);
+            await _mqttService.PublishAsync(topic, payload);
+            _logger.LogInformation("Command published to MQTT topic {Topic}", topic);
         }
-        else
+
+        try
         {
-            logger.LogWarning("MQTT client is not connected!");
+            using var ctx = _ctxFactory.CreateDbContext();
+            ctx.Commands.Add(command);
+            await ctx.SaveChangesAsync();
+            _logger.LogInformation("Command saved successfully");
         }
-
-        // Save to database
-        ctx.Commands.Add(command);
-        await ctx.SaveChangesAsync();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save command to DB");
+        }
     }
 }

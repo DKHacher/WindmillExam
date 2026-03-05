@@ -91,12 +91,50 @@ export class WindmillClient {
         return Promise.resolve<RealtimeListenResponseOfListOfWindmillAlertEntity>(null as any);
     }
 
-    startTurbine(connectionId: string | undefined): Promise<void> {
+    setReportInterval(turbineId: string | undefined, intervalSeconds: number | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/SetReportInterval?";
+        if (turbineId === null)
+            throw new globalThis.Error("The parameter 'turbineId' cannot be null.");
+        else if (turbineId !== undefined)
+            url_ += "turbineId=" + encodeURIComponent("" + turbineId) + "&";
+        if (intervalSeconds === null)
+            throw new globalThis.Error("The parameter 'intervalSeconds' cannot be null.");
+        else if (intervalSeconds !== undefined)
+            url_ += "intervalSeconds=" + encodeURIComponent("" + intervalSeconds) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetReportInterval(_response);
+        });
+    }
+
+    protected processSetReportInterval(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    startTurbine(turbineId: string | undefined): Promise<void> {
         let url_ = this.baseUrl + "/StartTurbine?";
-        if (connectionId === null)
-            throw new globalThis.Error("The parameter 'connectionId' cannot be null.");
-        else if (connectionId !== undefined)
-            url_ += "connectionId=" + encodeURIComponent("" + connectionId) + "&";
+        if (turbineId === null)
+            throw new globalThis.Error("The parameter 'turbineId' cannot be null.");
+        else if (turbineId !== undefined)
+            url_ += "turbineId=" + encodeURIComponent("" + turbineId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -111,6 +149,82 @@ export class WindmillClient {
     }
 
     protected processStartTurbine(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    stopTurbine(turbineId: string | undefined, reason: string | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/StopTurbine?";
+        if (turbineId === null)
+            throw new globalThis.Error("The parameter 'turbineId' cannot be null.");
+        else if (turbineId !== undefined)
+            url_ += "turbineId=" + encodeURIComponent("" + turbineId) + "&";
+        if (reason === null)
+            throw new globalThis.Error("The parameter 'reason' cannot be null.");
+        else if (reason !== undefined)
+            url_ += "reason=" + encodeURIComponent("" + reason) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processStopTurbine(_response);
+        });
+    }
+
+    protected processStopTurbine(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    setBladePitch(turbineId: string | undefined, angle: number | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/SetBladePitch?";
+        if (turbineId === null)
+            throw new globalThis.Error("The parameter 'turbineId' cannot be null.");
+        else if (turbineId !== undefined)
+            url_ += "turbineId=" + encodeURIComponent("" + turbineId) + "&";
+        if (angle === null)
+            throw new globalThis.Error("The parameter 'angle' cannot be null.");
+        else if (angle !== undefined)
+            url_ += "angle=" + encodeURIComponent("" + angle) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetBladePitch(_response);
+        });
+    }
+
+    protected processSetBladePitch(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {

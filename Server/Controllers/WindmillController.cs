@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.DTOs;
 using Server.Entities;
@@ -13,9 +14,12 @@ public class WindmillController(
     ISseBackplane backplane,
     IRealtimeManager realtimeManager,
     WindmillDbContext db,
-    IGroupRealtimeManager groupRealtimeManager
+    IGroupRealtimeManager groupRealtimeManager,
+    IMqttCommandService mqttCommandService
+    
 ) : RealtimeControllerBase(backplane)
 {
+    private readonly IMqttCommandService _mqttCommandService = mqttCommandService;
     
     [HttpGet(nameof(GetTelemetry))]
     public async Task<RealtimeListenResponse<List<WindmillTelemetryEntity>>> GetTelemetry([FromQuery] string connectionId)
@@ -59,13 +63,40 @@ public class WindmillController(
         return new RealtimeListenResponse<List<WindmillAlertEntity>>(group, initial);
     }
     
-    [HttpPost(nameof(StartTurbine))]
-    public async Task StartTurbine([FromQuery] string connectionId)
+    private async Task SendCommandAsync(string turbineId, string action, string payload)
     {
-        if (string.IsNullOrEmpty(connectionId))
-            throw new ArgumentException("ConnectionId is required");
-        
-        
+        // Forward command to the mediator service
+        await _mqttCommandService.SendCommandAsync(turbineId, action, payload);
+    }
+    
+    [HttpPost(nameof(SetReportInterval))]
+    public async Task SetReportInterval([FromQuery] string turbineId, [FromQuery] int intervalSeconds)
+    {
+        if (string.IsNullOrEmpty(turbineId))
+            throw new ArgumentException("TurbineId is required");
 
+        var payload = JsonSerializer.Serialize(new { action = "setInterval", value = intervalSeconds });
+        await SendCommandAsync(turbineId, "setInterval", payload);
+    }
+
+    [HttpPost(nameof(StartTurbine))]
+    public async Task StartTurbine([FromQuery] string turbineId)
+    {
+        var payload = JsonSerializer.Serialize(new { action = "start" });
+        await SendCommandAsync(turbineId, "start", payload);
+    }
+
+    [HttpPost(nameof(StopTurbine))]
+    public async Task StopTurbine([FromQuery] string turbineId, [FromQuery] string reason = "")
+    {
+        var payload = JsonSerializer.Serialize(new { action = "stop", reason });
+        await SendCommandAsync(turbineId, "stop", payload);
+    }
+
+    [HttpPost(nameof(SetBladePitch))]
+    public async Task SetBladePitch([FromQuery] string turbineId, [FromQuery] double angle)
+    {
+        var payload = JsonSerializer.Serialize(new { action = "setPitch", angle });
+        await SendCommandAsync(turbineId, "setPitch", payload);
     }
 }

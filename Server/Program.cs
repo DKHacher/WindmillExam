@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using StateleSSE.AspNetCore.Extensions;
 using NSwag;
 using NSwag.CodeGeneration.TypeScript;
+using Server.Controllers;
 using Server.Services;
 using StateleSSE.AspNetCore;
 using StateleSSE.AspNetCore.GroupRealtime;
@@ -31,13 +32,14 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 builder.Services.AddRedisSseBackplane();
 builder.Services.AddEfRealtime();
 builder.Services.AddGroupRealtime();
+builder.Services.AddSingleton<IMqttCommandService, MqttCommandService>();
+builder.Services.AddSingleton<WindmillMqttController>();
 // ===== DbContext ===== 
-builder.Services.AddDbContext<WindmillDbContext>(options =>
+builder.Services.AddDbContextFactory<WindmillDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 
 // ===== MQTT Controllers =====
 builder.Services.AddMqttControllers();
-
 // ===== Controllers =====
 builder.Services.AddControllers();
 
@@ -84,5 +86,11 @@ app.GenerateApiClientsFromOpenApi("../client/src/services/generated-ts-client.ts
 // ===== MQTT Client ===== 
 var mqtt = app.Services.GetRequiredService<IMqttClientService>();
 await mqtt.ConnectAsync("broker.hivemq.com", 1883);
+
+var mqttCommandService = app.Services.GetRequiredService<IMqttCommandService>();
+var windmillMqttController = app.Services.GetRequiredService<WindmillMqttController>();
+
+// now the service always knows the handler
+mqttCommandService.RegisterHandler(windmillMqttController.CommandFromMediatorAsync);
 
 app.Run();

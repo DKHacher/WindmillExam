@@ -66,6 +66,38 @@
         }
       }
     },
+    "/SetReportInterval": {
+      "post": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_SetReportInterval",
+        "parameters": [
+          {
+            "name": "turbineId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "intervalSeconds",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/StartTurbine": {
       "post": {
         "tags": [
@@ -74,12 +106,76 @@
         "operationId": "Windmill_StartTurbine",
         "parameters": [
           {
-            "name": "connectionId",
+            "name": "turbineId",
             "in": "query",
             "schema": {
               "type": "string"
             },
             "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/StopTurbine": {
+      "post": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_StopTurbine",
+        "parameters": [
+          {
+            "name": "turbineId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/SetBladePitch": {
+      "post": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_SetBladePitch",
+        "parameters": [
+          {
+            "name": "turbineId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "angle",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "x-position": 2
           }
         ],
         "responses": {
