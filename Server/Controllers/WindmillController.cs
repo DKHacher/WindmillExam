@@ -5,89 +5,67 @@ using Server.Entities;
 using Server.Services;
 using StateleSSE.AspNetCore;
 using StateleSSE.AspNetCore.EfRealtime;
+using StateleSSE.AspNetCore.GroupRealtime;
 
 namespace Server.Controllers;
 
-public class WindmillController : RealtimeControllerBase
+public class WindmillController(
+    ISseBackplane backplane,
+    IRealtimeManager realtimeManager,
+    WindmillDbContext db,
+    IGroupRealtimeManager groupRealtimeManager
+) : RealtimeControllerBase(backplane)
 {
-    private readonly WindmillDbContext _ctx;
-    private readonly IRealtimeManager _realtime;
-
-    public WindmillController(
-        ISseBackplane backplane,
-        WindmillDbContext ctx,
-        IRealtimeManager realtime)
-        : base(backplane)
-    {
-        this._ctx = ctx;
-        _realtime = realtime;
-    }
     
-    [HttpGet("telemetry-realtime")]
-    public async Task<RealtimeListenResponse<List<WindmillTelemetryDTO>>> GetTelemetries(
-        string connectionId)
+    [HttpGet(nameof(GetTelemetry))]
+    public async Task<RealtimeListenResponse<List<WindmillTelemetryEntity>>> GetTelemetry([FromQuery] string connectionId)
     {
-        var group = "stats:windmill:telemetry";
+        if (string.IsNullOrEmpty(connectionId))
+            throw new ArgumentException("ConnectionId is required");
 
-        
-        await Backplane.Groups.AddToGroupAsync(connectionId, group);
+        var group = "telemetry";
 
-        
-        _realtime.Subscribe<WindmillDbContext>(
+        await backplane.Groups.AddToGroupAsync(connectionId, group);
+
+        realtimeManager.Subscribe<WindmillDbContext>(
             connectionId,
             group,
-            criteria: snapshot =>
-                snapshot.HasChanges<WindmillTelemetryEntity>(),
-
-            query: async ctx =>
-                await ctx.Telemetries
-                    .OrderByDescending(t => t.timestamp)
-                    .Take(50)
-                    .Select(t => new WindmillTelemetryDTO
-                    {
-                        turbineId = t.turbineId,
-                        turbineName = t.turbineName,
-                        farmId = t.farmId,
-                        timestamp = t.timestamp,
-                        windSpeed = t.windSpeed,
-                        windDirection = t.windDirection,
-                        ambientTemperatur = t.ambientTemperatur,
-                        rotorSpeed = t.rotorSpeed,
-                        powerOutput = t.powerOutput,
-                        nacelleDirection = t.nacelleDirection,
-                        bladePitch = t.bladePitch,
-                        generatorTemp = t.generatorTemp,
-                        gearboxTemp = t.gearboxTemp,
-                        vibration = t.vibration,
-                        status = t.status
-                    })
-                    .ToListAsync()
+            criteria: snapshot => snapshot.HasChanges<WindmillTelemetryEntity>(),
+            query: async context => await context.Telemetries.ToListAsync()
         );
 
-        // Initial data for the UI
-        var initialData = await _ctx.Telemetries
-            .OrderByDescending(t => t.timestamp)
-            .Take(50)
-            .Select(t => new WindmillTelemetryDTO
-            {
-                turbineId = t.turbineId,
-                turbineName = t.turbineName,
-                farmId = t.farmId,
-                timestamp = t.timestamp,
-                windSpeed = t.windSpeed,
-                windDirection = t.windDirection,
-                ambientTemperatur = t.ambientTemperatur,
-                rotorSpeed = t.rotorSpeed,
-                powerOutput = t.powerOutput,
-                nacelleDirection = t.nacelleDirection,
-                bladePitch = t.bladePitch,
-                generatorTemp = t.generatorTemp,
-                gearboxTemp = t.gearboxTemp,
-                vibration = t.vibration,
-                status = t.status
-            })
-            .ToListAsync();
+        var initial = await db.Telemetries.ToListAsync();
+        return new RealtimeListenResponse<List<WindmillTelemetryEntity>>(group, initial);
+    }
+    
+    [HttpGet(nameof(GetAlert))]
+    public async Task<RealtimeListenResponse<List<WindmillAlertEntity>>> GetAlert([FromQuery] string connectionId)
+    {
+        if (string.IsNullOrEmpty(connectionId))
+            throw new ArgumentException("ConnectionId is required");
 
-        return new RealtimeListenResponse<List<WindmillTelemetryDTO>>(group, initialData);
+        var group = "alert";
+
+        await backplane.Groups.AddToGroupAsync(connectionId, group);
+
+        realtimeManager.Subscribe<WindmillDbContext>(
+            connectionId,
+            group,
+            criteria: snapshot => snapshot.HasChanges<WindmillAlertEntity>(),
+            query: async context => await context.Telemetries.ToListAsync()
+        );
+
+        var initial = await db.Alerts.ToListAsync();
+        return new RealtimeListenResponse<List<WindmillAlertEntity>>(group, initial);
+    }
+    
+    [HttpPost(nameof(StartTurbine))]
+    public async Task StartTurbine([FromQuery] string connectionId)
+    {
+        if (string.IsNullOrEmpty(connectionId))
+            throw new ArgumentException("ConnectionId is required");
+        
+        
+
     }
 }

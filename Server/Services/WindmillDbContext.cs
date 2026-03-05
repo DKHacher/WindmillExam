@@ -11,4 +11,6 @@ public class WindmillDbContext : DbContext
 
     public DbSet<WindmillTelemetryEntity> Telemetries => Set<WindmillTelemetryEntity>(); 
     public DbSet<WindmillAlertEntity> Alerts => Set<WindmillAlertEntity>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Commands>  Commands => Set<Commands>();
 }

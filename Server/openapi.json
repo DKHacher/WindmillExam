@@ -1,0 +1,262 @@
+{
+  "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My Title",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/GetTelemetry": {
+      "get": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_GetTelemetry",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealtimeListenResponseOfListOfWindmillTelemetryEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetAlert": {
+      "get": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_GetAlert",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealtimeListenResponseOfListOfWindmillAlertEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/StartTurbine": {
+      "post": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_StartTurbine",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/sse": {
+      "get": {
+        "tags": [
+          "Windmill"
+        ],
+        "operationId": "Windmill_Connect",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RealtimeListenResponseOfListOfWindmillTelemetryEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RealtimeListenResponse"
+          },
+          {
+            "type": "object",
+            "description": "Returned by subscribe endpoints with initial data. The client receives the current state\nimmediately and knows which SSE group to listen on for subsequent updates.",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/WindmillTelemetryEntity"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "WindmillTelemetryEntity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "turbineId": {
+            "type": "string"
+          },
+          "turbineName": {
+            "type": "string"
+          },
+          "farmId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "windSpeed": {
+            "type": "number",
+            "format": "float"
+          },
+          "windDirection": {
+            "type": "number",
+            "format": "float"
+          },
+          "ambientTemperatur": {
+            "type": "number",
+            "format": "float"
+          },
+          "rotorSpeed": {
+            "type": "number",
+            "format": "float"
+          },
+          "powerOutput": {
+            "type": "number",
+            "format": "float"
+          },
+          "nacelleDirection": {
+            "type": "number",
+            "format": "float"
+          },
+          "bladePitch": {
+            "type": "number",
+            "format": "float"
+          },
+          "generatorTemp": {
+            "type": "number",
+            "format": "float"
+          },
+          "gearboxTemp": {
+            "type": "number",
+            "format": "float"
+          },
+          "vibration": {
+            "type": "number",
+            "format": "float"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "RealtimeListenResponse": {
+        "type": "object",
+        "description": "Returned by subscribe endpoints so the client knows which SSE group to listen on.",
+        "additionalProperties": false,
+        "properties": {
+          "group": {
+            "type": "string"
+          }
+        }
+      },
+      "RealtimeListenResponseOfListOfWindmillAlertEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RealtimeListenResponse"
+          },
+          {
+            "type": "object",
+            "description": "Returned by subscribe endpoints with initial data. The client receives the current state\nimmediately and knows which SSE group to listen on for subsequent updates.",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/WindmillAlertEntity"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "WindmillAlertEntity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "turbineId": {
+            "type": "string"
+          },
+          "farmId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWT": {
+        "type": "http",
+        "description": "Enter JWT token",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
