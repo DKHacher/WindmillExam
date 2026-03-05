@@ -1,7 +1,7 @@
-﻿import {WindmillTelemetryDTO} from "../services/generated-ts-client.ts";
+﻿import {WindmillTelemetryEntity} from "../services/generated-ts-client.ts";
 
 type TurbineDetailsProps = {
-    turbine: WindmillTelemetryDTO;
+    turbine: WindmillTelemetryEntity;
     onClose: () => void;
 };
 
