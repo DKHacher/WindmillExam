@@ -56,7 +56,16 @@ builder.Services.AddOpenApiDocument(config =>
 });
 
 // ===== CORS =====
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetIsOriginAllowed(_ => true); // allow any origin
+    });
+});
+
 
 // ===== Build App =====
 var app = builder.Build();
@@ -64,11 +73,8 @@ var app = builder.Build();
 // ===== Middleware =====
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseCors(c => 
-    c.AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowAnyOrigin()
-        .SetIsOriginAllowed(_ => true));
+app.UseRouting();               // ← important
+app.UseCors("AllowAllOrigins"); // apply the policy
 
 
 // ===== Controllers / Endpoints =====

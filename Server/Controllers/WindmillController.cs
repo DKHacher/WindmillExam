@@ -56,7 +56,7 @@ public class WindmillController(
             connectionId,
             group,
             criteria: snapshot => snapshot.HasChanges<WindmillAlertEntity>(),
-            query: async context => await context.Telemetries.ToListAsync()
+            query: async context => await context.Alerts.ToListAsync()
         );
 
         var initial = await db.Alerts.ToListAsync();
