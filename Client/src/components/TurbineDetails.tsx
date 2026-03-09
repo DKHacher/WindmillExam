@@ -9,12 +9,12 @@ type TurbineDetailsProps = {
 
 function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
 
-    const [stopReason, setStopReason] = useState<string>();
-    const [bladePitch, setBladePitch] = useState<number>();
+    const [stopReason, setStopReason] = useState<string>("");
+    const [bladePitch, setBladePitch] = useState<number | undefined>();
 
     const start = () => restClient.startTurbine(turbine.turbineId);
     const stop = () => restClient.stopTurbine(turbine.turbineId, stopReason);
-    const setBladePitch = () => restClient.setBladePitch(turbine.turbineId, bladePitch);
+    const setBladePitchCommand = () => restClient.setBladePitch(turbine.turbineId, bladePitch);
 
     return (
         <div
@@ -57,6 +57,14 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                 value={stopReason}
                 placeholder="Enter reason for stopping"
                 onChange={(e) => setStopReason(e.target.value)}
+            />
+            <p>Adjust blade pitch</p>
+            <button onClick={setBladePitchCommand}></button>
+            <input
+                type="number"
+                value={bladePitch}
+                placeholder="Enter new blade pitch"
+                onChange={(e) => setBladePitch(Number(e.target.value))}
             />
         </div>
     );

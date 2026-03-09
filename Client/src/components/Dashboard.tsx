@@ -1,10 +1,10 @@
 ﻿import {useEffect, useState} from "react";
 import WindTurbine from "./WindTurbine.tsx";
 import TurbineDetails from "./TurbineDetails.tsx";
-import {telemetryAtom} from "../atoms/telemetryAtom.ts";
-import {restClient, sse} from "../services/sse.ts";
-import {WindmillTelemetryEntity} from "../services/generated-ts-client.ts";
-import {useAtom} from "jotai";
+import { telemetryAtom } from "../atoms/telemetryAtom.ts";
+import { restClient, sse } from "../services/sse.ts";
+import { WindmillTelemetryEntity } from "../services/generated-ts-client.ts";
+import { useAtom } from "jotai";
 
 function Dashboard() {
     const [selectedTurbine, setSelectedTurbine] = useState<WindmillTelemetryEntity | null>(null);
@@ -13,7 +13,8 @@ function Dashboard() {
     useEffect(() => {
 
         sse.listen(async (id) => {
-            return await restClient.getTelemetry(id);
+            const result = await restClient.getTelemetry(id);
+            return result;
         }, (data) => {
             setTelemetry(data);
         })
