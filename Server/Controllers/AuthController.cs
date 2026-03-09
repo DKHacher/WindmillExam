@@ -36,7 +36,7 @@ public class AuthController
             token,
             username = user.Name,
             role = user.Role
-        });*/
+        });
         return null;
     }   
     
