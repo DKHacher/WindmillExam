@@ -64,11 +64,11 @@ var app = builder.Build();
 // ===== Middleware =====
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseCors(c =>
-    c.WithOrigins("http://89.168.89.95")  // your frontend
-        .AllowAnyHeader()
+app.UseCors(c => 
+    c.AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials());
+        .AllowAnyOrigin()
+        .SetIsOriginAllowed(_ => true));
 
 
 // ===== Controllers / Endpoints =====
