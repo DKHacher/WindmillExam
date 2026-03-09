@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.DTOs;
@@ -9,7 +10,7 @@ using StateleSSE.AspNetCore.EfRealtime;
 using StateleSSE.AspNetCore.GroupRealtime;
 
 namespace Server.Controllers;
-
+[EnableCors("SseCorsPolicy")]
 public class WindmillController(
     ISseBackplane backplane,
     IRealtimeManager realtimeManager,
