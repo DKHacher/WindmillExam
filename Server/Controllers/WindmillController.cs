@@ -28,12 +28,6 @@ public class WindmillController(
             throw new ArgumentException("ConnectionId is required");
 
         var group = "telemetry";
-        
-        Response.Headers.Add("Access-Control-Allow-Origin", "http://89.168.89.95");
-        Response.Headers.Add("Access-Control-Allow-Credentials", "true");
-        Response.Headers.Add("Cache-Control", "no-cache");
-        Response.ContentType = "text/event-stream";
-        await Response.Body.FlushAsync(); // <-- ensure browser receives headers now
 
         await backplane.Groups.AddToGroupAsync(connectionId, group);
 
@@ -55,12 +49,7 @@ public class WindmillController(
             throw new ArgumentException("ConnectionId is required");
 
         var group = "alert";
-        
-        Response.Headers.Add("Access-Control-Allow-Origin", "http://89.168.89.95");
-        Response.Headers.Add("Access-Control-Allow-Credentials", "true");
-        Response.Headers.Add("Cache-Control", "no-cache");
-        Response.ContentType = "text/event-stream";
-        await Response.Body.FlushAsync(); // <-- ensure browser receives headers now
+
         await backplane.Groups.AddToGroupAsync(connectionId, group);
 
         realtimeManager.Subscribe<WindmillDbContext>(
