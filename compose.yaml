@@ -4,8 +4,8 @@ services:
 
   server:
     build:
-      context: .
-      dockerfile: Server/Dockerfile
+      context: ./Server
+      dockerfile: Dockerfile
     container_name: windmill-server
     ports:
       - "8080:8080"
@@ -16,7 +16,7 @@ services:
   client:
     build:
       context: ./Client
-      dockerfile: Client/Dockerfile
+      dockerfile: Dockerfile
     container_name: windmill-client
     ports:
       - "80:80"
