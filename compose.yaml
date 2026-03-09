@@ -15,7 +15,7 @@ services:
 
   client:
     build:
-      context: .
+      context: ./Client
       dockerfile: Client/Dockerfile
     container_name: windmill-client
     ports:
