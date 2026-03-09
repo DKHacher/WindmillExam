@@ -1,0 +1,44 @@
+﻿name: Deploy WindmillExam
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Copy files to Oracle server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ORACLE_IP }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SKEY }}
+          port: ${{ secrets.ORACLE_PORT }}
+          source: "."
+          target: "~/WindmillExam"
+          rm: true
+
+      - name: SSH and deploy containers
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.ORACLE_IP }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SKEY }}
+          port: ${{ secrets.ORACLE_PORT }}
+          script: |
+
+            cd ~/WindmillExam
+
+            echo "ConnectionStrings__Postgres=Host=${{ secrets.AIVEN_HOST }};Port=${{ secrets.AIVEN_PORT }};Username=${{ secrets.AIVEN_USER }};Password=${{ secrets.AIVEN_PASS }};Database=${{ secrets.AIVEN_DB }}" > .env
+  
+            echo "ConnectionStrings__Redis=${{ secrets.REDIS_HOST }}:${{ secrets.REDIS_PORT }},password=${{ secrets.REDIS_PASS }}" >> .env
+
+            docker compose down || true
+            docker compose up --build -d
+
+            docker ps
