@@ -1,11 +1,20 @@
-﻿import {WindmillTelemetryDTO} from "../services/generated-ts-client.ts";
+﻿import {WindmillTelemetryEntity} from "../services/generated-ts-client.ts";
+import {restClient} from "../services/sse.ts";
+import {useState} from "react";
 
 type TurbineDetailsProps = {
-    turbine: WindmillTelemetryDTO;
+    turbine: WindmillTelemetryEntity;
     onClose: () => void;
 };
 
 function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
+
+    const [stopReason, setStopReason] = useState<string>();
+    const [bladePitch, setBladePitch] = useState<number>();
+
+    const start = () => restClient.startTurbine(turbine.turbineId);
+    const stop = () => restClient.stopTurbine(turbine.turbineId, stopReason);
+    const setBladePitch = () => restClient.setBladePitch(turbine.turbineId, bladePitch);
 
     return (
         <div
@@ -41,6 +50,14 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                 <p>Vibration - {turbine.vibration}</p>
                 <p>Status - {turbine.status}</p>
             </div>
+            <button onClick={start}>Start Turbine</button>
+            <button onClick={stop}>Stop Turbine</button>
+            <input
+                type="text"
+                value={stopReason}
+                placeholder="Enter reason for stopping"
+                onChange={(e) => setStopReason(e.target.value)}
+            />
         </div>
     );
 }
