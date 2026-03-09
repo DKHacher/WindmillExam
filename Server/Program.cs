@@ -58,11 +58,13 @@ builder.Services.AddOpenApiDocument(config =>
 // ===== CORS =====
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", policy =>
+    options.AddPolicy("SseCorsPolicy", policy =>
     {
-        policy.AllowAnyHeader()
+        policy
+            .WithOrigins("http://89.168.89.95")  // your frontend origin
+            .AllowAnyHeader()
             .AllowAnyMethod()
-            .SetIsOriginAllowed(_ => true); // allow any origin
+            .AllowCredentials();                 // if you use cookies/auth
     });
 });
 
@@ -73,9 +75,11 @@ var app = builder.Build();
 // ===== Middleware =====
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseRouting();               // ← important
-app.UseCors("AllowAllOrigins"); // apply the policy
+app.UseRouting();
 
+app.UseCors("SseCorsPolicy"); // global policy applied to all controllers
+
+app.UseAuthorization();
 
 // ===== Controllers / Endpoints =====
 app.MapControllers();
