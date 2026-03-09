@@ -38,7 +38,7 @@ jobs:
   
             echo "ConnectionStrings__Redis=${{ secrets.REDIS_HOST }}:${{ secrets.REDIS_PORT }},password=${{ secrets.REDIS_PASS }}" >> .env
 
-            docker compose down || true
-            docker compose up --build -d
+            docker-compose down || true
+            docker-compose up --build -d
 
             docker ps
