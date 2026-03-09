@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.DTOs;
@@ -10,7 +9,7 @@ using StateleSSE.AspNetCore.EfRealtime;
 using StateleSSE.AspNetCore.GroupRealtime;
 
 namespace Server.Controllers;
-[EnableCors("SseCorsPolicy")]
+
 public class WindmillController(
     ISseBackplane backplane,
     IRealtimeManager realtimeManager,
@@ -29,6 +28,10 @@ public class WindmillController(
             throw new ArgumentException("ConnectionId is required");
 
         var group = "telemetry";
+        
+        Response.Headers.Add("Access-Control-Allow-Origin", "http://89.168.89.95");
+        Response.Headers.Add("Access-Control-Allow-Credentials", "true"); // if credentials needed
+        Response.Headers.Add("Cache-Control", "no-cache");
 
         await backplane.Groups.AddToGroupAsync(connectionId, group);
 
@@ -50,6 +53,10 @@ public class WindmillController(
             throw new ArgumentException("ConnectionId is required");
 
         var group = "alert";
+        
+        Response.Headers.Add("Access-Control-Allow-Origin", "http://89.168.89.95");
+        Response.Headers.Add("Access-Control-Allow-Credentials", "true"); // if credentials needed
+        Response.Headers.Add("Cache-Control", "no-cache");
 
         await backplane.Groups.AddToGroupAsync(connectionId, group);
 
