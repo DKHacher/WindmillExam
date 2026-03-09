@@ -14,21 +14,19 @@ namespace Server.Controllers;
 public class AuthController
 {
     private readonly WindmillDbContext _ctx;
-    public AuthController(WindmillDbContext ctx)
+    public AuthController (WindmillDbContext ctx)
     {
         _ctx = ctx;
     }
 
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Name == request.Password);
+        var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Name == request.Email);
 
         if (user == null)
             return new UnauthorizedObjectResult("Invalid username or password");
 
-        var passwordOk = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
-
-        if (!passwordOk)
+        if (user.Password != request.Password)
             return new UnauthorizedObjectResult("Invalid username or password");
 
         var token = GenerateJwt(user);
