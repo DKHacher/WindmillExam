@@ -1,11 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿//using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using backend;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+//using Microsoft.IdentityModel.Tokens;
 using Server.Entities;
 using Server.Services;
 
@@ -26,22 +26,23 @@ public class AuthController
         if (user == null)
             return new UnauthorizedObjectResult("Invalid username or password");
 
-        var passwordOk = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
+        //var passwordOk = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
 
-        if (!passwordOk)
-            return new UnauthorizedObjectResult("Invalid username or password");
+        //if (!passwordOk)
+            //return new UnauthorizedObjectResult("Invalid username or password");
 
-        var token = GenerateJwt(user);
+        /*var token = GenerateJwt(user);
 
         return new OkObjectResult(new
         {
             token,
             username = user.Name,
             role = user.Role
-        });
+        });*/
+        return null;
     }   
     
-    private string GenerateJwt(User user)
+    /*private string GenerateJwt(User user)
     {
         var secret = new AppOptions().JwtSecret ;
 
@@ -63,5 +64,5 @@ public class AuthController
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    }*/
 }
