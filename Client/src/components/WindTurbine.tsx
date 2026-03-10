@@ -8,17 +8,6 @@ type Props = {
 function WindTurbine({ turbine, onClick }: Props) {
     const duration = Math.max(0.5, 6 - turbine.windSpeed! /5);
 
-    const getBladeColor = () => {
-        switch (status) {
-            case "ERROR":
-                return "#ff4d4d";
-            case "WARNING":
-                return "#ffcc00";
-            default:
-                return "#ffffff";
-        }
-    };
-
     return (
         <div style={containerStyle} onClick={onClick}>
             <div
@@ -28,9 +17,9 @@ function WindTurbine({ turbine, onClick }: Props) {
                     animationDuration: `${duration}s`,
                 }}
             >
-                <div style={{ ...bladeStyle, backgroundColor: getBladeColor(), transform:"rotate(0deg)" }}/>
-                <div style={{ ...bladeStyle, backgroundColor: getBladeColor(), transform:"rotate(120deg)" }}/>
-                <div style={{ ...bladeStyle, backgroundColor: getBladeColor(), transform:"rotate(240deg)" }}/>
+                <div style={{ ...bladeStyle, backgroundColor: "#ffffff", transform:"rotate(0deg)" }}/>
+                <div style={{ ...bladeStyle, backgroundColor: "#ffffff", transform:"rotate(120deg)" }}/>
+                <div style={{ ...bladeStyle, backgroundColor: "#ffffff", transform:"rotate(240deg)" }}/>
             </div>
 
             <div style={towerStyle} />

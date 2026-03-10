@@ -11,6 +11,10 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
 
     const [stopReason, setStopReason] = useState<string>("");
     const [bladePitch, setBladePitch] = useState<number | undefined>();
+    const statusText = turbine.status?.toUpperCase();
+    const statusEmoji =
+        turbine.status === "running" ? "🟢" :
+            turbine.status === "stopped" ? "🔴" : "";
 
     const start = () => restClient.startTurbine(turbine.turbineId);
     const stop = () => restClient.stopTurbine(turbine.turbineId, stopReason);
@@ -36,36 +40,60 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
             </div>
             <div style={{ background: "#333", padding: "20px", borderRadius: "10px" }}>
                 <h2>Turbine Details</h2>
-                <p>Name - {turbine.turbineName}</p>
-                <p>Connected Farm - {turbine.farmId}</p>
-                <p>Wind Speed - {turbine.windSpeed}</p>
-                <p>Wind Direction - {turbine.windDirection}</p>
-                <p>Ambient Temperature - {turbine.ambientTemperatur}</p>
-                <p>Rotor Speed - {turbine.rotorSpeed}</p>
-                <p>Power Output - {turbine.powerOutput}</p>
-                <p>Nacelle Direction - {turbine.nacelleDirection}</p>
-                <p>Blade Pitch - {turbine.bladePitch}</p>
-                <p>Generator Temperature - {turbine.generatorTemp}</p>
-                <p>Gearbox Temperature - {turbine.gearboxTemp}</p>
-                <p>Vibration - {turbine.vibration}</p>
-                <p>Status - {turbine.status}</p>
+
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "150px 1fr",
+                        rowGap: "8px",
+                        columnGap: "10px",
+                        justifyContent: "center",
+                        textAlign: "left",
+                        marginBottom: "20px"
+                    }}
+                >
+                    <span>Name</span> <span>{turbine.turbineName}</span>
+                    <span>Connected Farm</span> <span>{turbine.farmId}</span>
+                    <span>Wind Speed</span> <span>{turbine.windSpeed}</span>
+                    <span>Wind Direction</span> <span>{turbine.windDirection}</span>
+                    <span>Ambient Temp</span> <span>{turbine.ambientTemperatur}</span>
+                    <span>Rotor Speed</span> <span>{turbine.rotorSpeed}</span>
+                    <span>Power Output</span> <span>{turbine.powerOutput}</span>
+                    <span>Nacelle Direction</span> <span>{turbine.nacelleDirection}</span>
+                    <span>Blade Pitch</span> <span>{turbine.bladePitch}</span>
+                    <span>Generator Temp</span> <span>{turbine.generatorTemp}</span>
+                    <span>Gearbox Temp</span> <span>{turbine.gearboxTemp}</span>
+                    <span>Vibration</span> <span>{turbine.vibration}</span>
+                    <span>Status</span> <span>{statusText} {statusEmoji}</span>
+                </div>
+
+                <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+                    <button onClick={start}>Start Turbine</button>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    <button onClick={stop}>Stop Turbine</button>
+                    <input
+                        type="text"
+                        value={stopReason}
+                        placeholder="Enter reason for stopping"
+                        onChange={(e) => setStopReason(e.target.value)}
+                        style={{ marginLeft: "10px" }}
+                    />
+                </div>
+
+                <div>
+                    <p>Adjust blade pitch</p>
+                    <input
+                        type="string"
+                        value={bladePitch}
+                        placeholder={`Current: ${turbine.bladePitch}`}
+                        onChange={(e) => setBladePitch(Number(e.target.value))}
+                        style={{ marginRight: "10px" }}
+                    />
+                    <button onClick={setBladePitchCommand}>Sumbit New Blade Pitch</button>
+                </div>
             </div>
-            <button onClick={start}>Start Turbine</button>
-            <button onClick={stop}>Stop Turbine</button>
-            <input
-                type="text"
-                value={stopReason}
-                placeholder="Enter reason for stopping"
-                onChange={(e) => setStopReason(e.target.value)}
-            />
-            <p>Adjust blade pitch</p>
-            <button onClick={setBladePitchCommand}></button>
-            <input
-                type="number"
-                value={bladePitch}
-                placeholder="Enter new blade pitch"
-                onChange={(e) => setBladePitch(Number(e.target.value))}
-            />
         </div>
     );
 }
