@@ -63,7 +63,7 @@ function Dashboard() {
                         turbine={turbine}
                         onClick={() => setSelectedTurbine(turbine)}
                     />
-                    <div style={{ marginTop: "5px", fontWeight: "bold" }}>
+                    <div style={{ fontWeight: "bold" }}>
                         <span>{turbine.turbineName ?? "Unknown"}</span> -{" "}
                         <span>
                             {turbine.status?.toUpperCase() ?? "N/A"}{" "}

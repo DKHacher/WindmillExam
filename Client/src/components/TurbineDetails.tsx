@@ -97,11 +97,23 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                    <button onClick={start}>Start Turbine</button>
+                    <button
+                        onClick={start}
+                        style={turbine.status === "running" ? buttonStyle : activeButtonStyle}
+                        disabled={turbine.status === "running"}
+                    >
+                        Start Turbine
+                    </button>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-                    <button onClick={stop}>Stop Turbine</button>
+                    <button
+                        onClick={stop}
+                        style={turbine.status === "stopped" ? buttonStyle : activeButtonStyle}
+                        disabled={turbine.status === "stopped"}
+                    >
+                        Stop Turbine
+                    </button>
                     <input
                         type="text"
                         value={stopReason}
@@ -148,5 +160,17 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
         </div>
     );
 }
+
+const buttonStyle: React.CSSProperties = {
+    marginRight: "10px",
+    opacity: 0.5,
+    cursor: "not-allowed",
+};
+
+const activeButtonStyle: React.CSSProperties = {
+    marginRight: "10px",
+    cursor: "pointer",
+    opacity: 1,
+};
 
 export default TurbineDetails;
