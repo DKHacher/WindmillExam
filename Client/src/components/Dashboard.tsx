@@ -43,7 +43,7 @@ function Dashboard() {
             minHeight: "100vh",
             color: "white"
         }}>
-            <h1>Windmill Dashboard</h1>
+            <h1>Available Wind Turbines</h1>
 
             {windmills.map(turbine => (
                 <div

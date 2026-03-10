@@ -6,23 +6,20 @@ type Props = {
 };
 
 function WindTurbine({ turbine, onClick }: Props) {
-    const duration = Math.max(0.5, 6 - turbine.windSpeed! /5);
+    const duration = Math.max(0.5, 6 - (turbine.windSpeed ?? 0) /5);
+    const isRunning = turbine.status === "running";
 
     return (
         <div style={containerStyle} onClick={onClick}>
-            <div
-                className="rotate-center"
-                style={{
-                    ...bladeContainerStyle,
-                    animationDuration: `${duration}s`,
-                }}
-            >
-                <div style={{ ...bladeStyle, backgroundColor: "#ffffff", transform:"rotate(0deg)" }}/>
-                <div style={{ ...bladeStyle, backgroundColor: "#ffffff", transform:"rotate(120deg)" }}/>
-                <div style={{ ...bladeStyle, backgroundColor: "#ffffff", transform:"rotate(240deg)" }}/>
-            </div>
-
             <div style={towerStyle} />
+            <div
+                className={isRunning ? "rotate-center" : undefined}
+                style={{ ...bladeContainerStyle, animationDuration: `${duration}s` }}
+            >
+                <div style={{ ...bladeStyle, transform: "rotate(0deg)" }} />
+                <div style={{ ...bladeStyle, transform: "rotate(120deg)" }} />
+                <div style={{ ...bladeStyle, transform: "rotate(240deg)" }} />
+            </div>
         </div>
     );
 };
@@ -38,7 +35,7 @@ const containerStyle: React.CSSProperties = {
 };
 
 const towerStyle: React.CSSProperties = {
-    width: "20px",
+    width: "10px",
     height: "200px",
     background:"#ccc",
     position: "absolute",
@@ -47,20 +44,26 @@ const towerStyle: React.CSSProperties = {
     transform: "translateX(-50%)",
 };
 
+const hubSize = 120;
+const bladeLength = 80;
+
 const bladeContainerStyle: React.CSSProperties = {
-    width: "120px",
-    height: "120px",
+    width: `${hubSize}px`,
+    height: `${hubSize}px`,
     position: "absolute",
-    top:"40px",
+    top: "40px",
     left: "50%",
     transform: "translateX(-50%)",
+    transformOrigin: "center center",
 };
 
 const bladeStyle: React.CSSProperties = {
-    width:"10px",
-    height: "60px",
-    position:"absolute",
-    left: "50%",
-    top: 0,
+    width: "10px",
+    height: `${bladeLength}px`,
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: `${hubSize / 2 - bladeLength}px`,
+    left: `${hubSize / 2 - 5}px`,
     transformOrigin: "bottom center",
+    clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
 };
