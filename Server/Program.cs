@@ -29,7 +29,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 
 // Add the Redis backplane for real-time updates
-builder.Services.AddInMemorySseBackplane();
+builder.Services.AddRedisSseBackplane();
 builder.Services.AddEfRealtime();
 builder.Services.AddGroupRealtime();
 builder.Services.AddSingleton<IMqttCommandService, MqttCommandService>();
