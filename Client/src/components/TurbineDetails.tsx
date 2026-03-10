@@ -17,10 +17,12 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
     const [stopReason, setStopReason] = useState<string>("");
     const [bladePitch, setBladePitch] = useState<number | undefined>();
     const [showCharts, setShowCharts] = useState(false);
+    const [reportInterval, setReportInterval] = useState<number | undefined>();
 
     const start = () => restClient.startTurbine(turbine.turbineId);
     const stop = () => restClient.stopTurbine(turbine.turbineId, stopReason);
     const setBladePitchCommand = () => restClient.setBladePitch(turbine.turbineId, bladePitch);
+    const setReportIntervalCommand = () => restClient.setReportInterval(turbine.turbineId, reportInterval);
 
     return (
         <div
@@ -127,6 +129,18 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                 >
                     Show Telemetry Charts
                 </button>
+
+                <div style={{ marginBottom: "20px" }}>
+                    <p>Set MQTT Report Interval (seconds)</p>
+                    <input
+                        type="number"
+                        value={reportInterval}
+                        placeholder="e.g. 10"
+                        onChange={(e) => setReportInterval(Number(e.target.value))}
+                        style={{ marginRight: "10px", width: "80px" }}
+                    />
+                    <button onClick={setReportIntervalCommand}>Set Interval</button>
+                </div>
 
             </div>
 
