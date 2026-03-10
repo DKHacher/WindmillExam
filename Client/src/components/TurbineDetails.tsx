@@ -17,10 +17,12 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
     const [stopReason, setStopReason] = useState<string>("");
     const [bladePitch, setBladePitch] = useState<number | undefined>();
     const [showCharts, setShowCharts] = useState(false);
+    const [reportInterval, setReportInterval] = useState<number | undefined>();
 
     const start = () => restClient.startTurbine(turbine.turbineId);
     const stop = () => restClient.stopTurbine(turbine.turbineId, stopReason);
     const setBladePitchCommand = () => restClient.setBladePitch(turbine.turbineId, bladePitch);
+    const setReportIntervalCommand = () => restClient.setReportInterval(turbine.turbineId, reportInterval);
 
     return (
         <div
@@ -95,11 +97,23 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                    <button onClick={start}>Start Turbine</button>
+                    <button
+                        onClick={start}
+                        style={turbine.status === "running" ? buttonStyle : activeButtonStyle}
+                        disabled={turbine.status === "running"}
+                    >
+                        Start Turbine
+                    </button>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-                    <button onClick={stop}>Stop Turbine</button>
+                    <button
+                        onClick={stop}
+                        style={turbine.status === "stopped" ? buttonStyle : activeButtonStyle}
+                        disabled={turbine.status === "stopped"}
+                    >
+                        Stop Turbine
+                    </button>
                     <input
                         type="text"
                         value={stopReason}
@@ -128,11 +142,35 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                     Show Telemetry Charts
                 </button>
 
+                <div style={{ marginBottom: "20px" }}>
+                    <p>Set MQTT Report Interval (seconds)</p>
+                    <input
+                        type="number"
+                        value={reportInterval}
+                        placeholder="e.g. 10"
+                        onChange={(e) => setReportInterval(Number(e.target.value))}
+                        style={{ marginRight: "10px", width: "80px" }}
+                    />
+                    <button onClick={setReportIntervalCommand}>Set Interval</button>
+                </div>
+
             </div>
 
             {showCharts && <TurbineCharts turbineId={turbine.turbineId} onClose={() => setShowCharts(false)} />}
         </div>
     );
 }
+
+const buttonStyle: React.CSSProperties = {
+    marginRight: "10px",
+    opacity: 0.5,
+    cursor: "not-allowed",
+};
+
+const activeButtonStyle: React.CSSProperties = {
+    marginRight: "10px",
+    cursor: "pointer",
+    opacity: 1,
+};
 
 export default TurbineDetails;

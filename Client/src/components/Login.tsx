@@ -1,15 +1,27 @@
 ﻿import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-
+// import { useAtom } from "jotai";
+// import {jwtAtom} from "../atoms/authAtom.ts";
+// import {restClient} from "../services/sse.ts";
 
 function Login() {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    // const [, setJwt] = useAtom(jwtAtom);
+    const [error, setError] = useState("");
 
-    const handleLogin = () => {
-        if (username && password) {
+    const handleLogin = async () => {
+        if (!username || !password) return;
+
+        try {
+            // const token = await restClient.login(username, password);
+            // setJwt(token);
+            // sessionStorage.setItem("authToken", token);
             navigate("/dashboard");
+        } catch (err) {
+            setError("Login failed");
+            console.error(err);
         }
     };
 
@@ -34,8 +46,10 @@ function Login() {
             />
             <br />
             <button onClick={handleLogin}>Login</button>
-            <br />
-            <button onClick={goToDashboard}>Go to Dashboard</button>
+            <div>
+                <button onClick={goToDashboard}>Go to Dashboard</button>
+            </div>
+            {error && <div style={{ color: "red" }}>{error}</div>}
         </div>
     );
 }

@@ -6,14 +6,16 @@ import { restClient, sse } from "../services/sse.ts";
 import { WindmillTelemetryEntity } from "../services/generated-ts-client.ts";
 import { useAtom } from "jotai";
 import {windmillAtom} from "../atoms/windmillAtom.ts";
+import {alertAtom} from "../atoms/alertAtom.ts";
+import toast from "react-hot-toast";
 
 function Dashboard() {
     const [selectedTurbine, setSelectedTurbine] = useState<WindmillTelemetryEntity | null>(null);
     const [, setTelemetry] = useAtom(telemetryAtom);
+    const [, setAlerts] = useAtom(alertAtom);
     const [windmills, setWindmills] = useAtom(windmillAtom);
 
     useEffect(() => {
-
         sse.listen(async (id) => {
             const result = await restClient.getTelemetry(id);
             return result;
@@ -33,8 +35,33 @@ function Dashboard() {
             }
 
             setWindmills(Array.from(latest.values()));
-        })
-    }, [setTelemetry, setWindmills]);
+        });
+
+        sse.listen(async (id) => {
+            const result = await restClient.getAlert(id);
+            return result;
+        }, (data) => {
+            setAlerts(prev => {
+                const previousIds = new Set(prev.map(a => a.id));
+
+                const newAlerts = data.filter(a => a.id && !previousIds.has(a.id));
+
+                newAlerts.forEach(a => {
+                    const message = `${a.turbineId} - ${a.severity?.toUpperCase()}: ${a.message}`;
+
+                    if (a.severity === "critical") {
+                        toast.error(message, { duration: 6000 });
+                    } else if (a.severity === "warning") {
+                        toast(message, { icon: "⚠️", duration: 5000 });
+                    } else {
+                        toast(message);
+                    }
+                });
+
+                return data;
+            });
+        });
+    }, [setAlerts, setTelemetry, setWindmills]);
 
     return (
         <div style={{
@@ -63,7 +90,7 @@ function Dashboard() {
                         turbine={turbine}
                         onClick={() => setSelectedTurbine(turbine)}
                     />
-                    <div style={{ marginTop: "5px", fontWeight: "bold" }}>
+                    <div style={{ fontWeight: "bold" }}>
                         <span>{turbine.turbineName ?? "Unknown"}</span> -{" "}
                         <span>
                             {turbine.status?.toUpperCase() ?? "N/A"}{" "}
