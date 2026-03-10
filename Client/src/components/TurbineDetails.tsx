@@ -1,6 +1,7 @@
-﻿import {WindmillTelemetryEntity} from "../services/generated-ts-client.ts";
-import {restClient} from "../services/sse.ts";
-import {useState} from "react";
+﻿import { WindmillTelemetryEntity } from "../services/generated-ts-client.ts";
+import { restClient } from "../services/sse.ts";
+import { useState } from "react";
+import TurbineCharts from "./TurbineCharts.tsx";
 
 type TurbineDetailsProps = {
     turbine: WindmillTelemetryEntity;
@@ -8,13 +9,14 @@ type TurbineDetailsProps = {
 };
 
 function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
-
-    const [stopReason, setStopReason] = useState<string>("");
-    const [bladePitch, setBladePitch] = useState<number | undefined>();
     const statusText = turbine.status?.toUpperCase();
     const statusEmoji =
         turbine.status === "running" ? "🟢" :
             turbine.status === "stopped" ? "🔴" : "";
+
+    const [stopReason, setStopReason] = useState<string>("");
+    const [bladePitch, setBladePitch] = useState<number | undefined>();
+    const [showCharts, setShowCharts] = useState(false);
 
     const start = () => restClient.startTurbine(turbine.turbineId);
     const stop = () => restClient.stopTurbine(turbine.turbineId, stopReason);
@@ -33,26 +35,51 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                 justifyContent: "center",
                 alignItems: "center",
                 color: "#fff",
+                overflowY: "auto",
+                padding: "20px",
+                zIndex: 1000,
             }}
         >
-            <div style={closeButtonStyle} onClick={onClose}>
-                ✕
-            </div>
-            <div style={{ background: "#333", padding: "20px", borderRadius: "10px" }}>
-                <h2>Turbine Details</h2>
+            <div
+                style={{
+                    position: "relative",
+                    background: "#333",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    width: "90%",
+                    maxWidth: "900px",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
+                }}
+            >
 
-                <div
+                <button
+                    onClick={onClose}
                     style={{
-                        display: "grid",
-                        gridTemplateColumns: "150px 1fr",
-                        rowGap: "8px",
-                        columnGap: "10px",
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        background: "#ff4d4d",
+                        border: "none",
+                        borderRadius: "50%",
+                        color: "#fff",
+                        width: "35px",
+                        height: "35px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "18px",
+                        display: "flex",
                         justifyContent: "center",
-                        textAlign: "left",
-                        marginBottom: "20px"
+                        alignItems: "center",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
                     }}
                 >
-                    <span>Name</span> <span>{turbine.turbineName}</span>
+                    ✕
+                </button>
+
+                <h2>{turbine.turbineName} Details</h2>
+
+                <div style={{ display: "grid", gridTemplateColumns: "150px 1fr", rowGap: "8px", columnGap: "10px", marginBottom: "20px" }}>
                     <span>Connected Farm</span> <span>{turbine.farmId}</span>
                     <span>Wind Speed</span> <span>{turbine.windSpeed}</span>
                     <span>Wind Direction</span> <span>{turbine.windDirection}</span>
@@ -67,11 +94,11 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                     <span>Status</span> <span>{statusText} {statusEmoji}</span>
                 </div>
 
-                <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
                     <button onClick={start}>Start Turbine</button>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
                     <button onClick={stop}>Stop Turbine</button>
                     <input
                         type="text"
@@ -82,28 +109,30 @@ function TurbineDetails({ turbine, onClose }: TurbineDetailsProps) {
                     />
                 </div>
 
-                <div>
+                <div style={{ marginBottom: "20px" }}>
                     <p>Adjust blade pitch</p>
                     <input
-                        type="string"
+                        type="number"
                         value={bladePitch}
                         placeholder={`Current: ${turbine.bladePitch}`}
                         onChange={(e) => setBladePitch(Number(e.target.value))}
                         style={{ marginRight: "10px" }}
                     />
-                    <button onClick={setBladePitchCommand}>Sumbit New Blade Pitch</button>
+                    <button onClick={setBladePitchCommand}>Submit New Blade Pitch</button>
                 </div>
+
+                <button
+                    onClick={() => setShowCharts(true)}
+                    style={{ marginTop: "20px", padding: "10px 20px" }}
+                >
+                    Show Telemetry Charts
+                </button>
+
             </div>
+
+            {showCharts && <TurbineCharts turbineId={turbine.turbineId} onClose={() => setShowCharts(false)} />}
         </div>
     );
 }
 
 export default TurbineDetails;
-
-const closeButtonStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    cursor: "pointer",
-    fontWeight: "bold",
-};
