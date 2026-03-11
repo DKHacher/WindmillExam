@@ -2,7 +2,7 @@
 import WindTurbine from "./WindTurbine.tsx";
 import TurbineDetails from "./TurbineDetails.tsx";
 import { telemetryAtom } from "../atoms/telemetryAtom.ts";
-import { restClient, sse } from "../services/sse.ts";
+import {createSSE, restClient} from "../services/sse.ts";
 import { WindmillTelemetryEntity } from "../services/generated-ts-client.ts";
 import { useAtom } from "jotai";
 import {windmillAtom} from "../atoms/windmillAtom.ts";
@@ -16,55 +16,59 @@ function Dashboard() {
     const [windmills, setWindmills] = useAtom(windmillAtom);
 
     useEffect(() => {
-        sse.listen(async (id) => {
-            const result = await restClient.getTelemetry(id);
-            return result;
-        }, (data) => {
+        const sse = createSSE();
+
+        const telemetryUnsub = sse.listen(
+            async (id) => await restClient.getTelemetry(id),
+            (data) => {
             setTelemetry(data);
 
             const latest = new Map<string, WindmillTelemetryEntity>();
-
             for (const turbine of data) {
                 if (!turbine.turbineId || !turbine.timestamp) continue;
-
                 const existing = latest.get(turbine.turbineId);
-
                 if (!existing || turbine.timestamp > (existing.timestamp ?? "")) {
                     latest.set(turbine.turbineId, turbine);
                 }
             }
-
             setWindmills(Array.from(latest.values()));
         });
 
-        sse.listen(async (id) => {
-            const result = await restClient.getAlert(id);
-            return result;
-        }, (data) => {
-            setAlerts(prev => {
-                const previousIds = new Set(prev.map(a => a.id));
 
-                const newAlerts = data.filter(a => a.id && !previousIds.has(a.id));
+        const alertUnsub = sse.listen(
+            async (id) => await restClient.getAlert(id),
+            (data) => {
+                setAlerts(prev => {
+                    const previousIds = new Set(prev.map(a => a.id));
+                    const newAlerts = data.filter(a => a.id && !previousIds.has(a.id));
 
-                newAlerts.forEach(a => {
-                    const message = `${a.turbineId} - ${a.severity?.toUpperCase()}: ${a.message}`;
+                    newAlerts.forEach(a => {
+                        const message = `${a.turbineId} - ${a.severity?.toUpperCase()}: ${a.message}`;
 
-                    if (a.severity === "critical") {
-                        toast.error(message, { duration: 6000 });
-                    } else if (a.severity === "warning") {
-                        toast(message, { icon: "⚠️", duration: 5000 });
-                    } else {
-                        toast(message);
-                    }
+                        if (a.severity === "critical") {
+                            toast.error(message, { duration: 6000 });
+                        } else if (a.severity === "warning") {
+                            toast(message, { icon: "⚠️", duration: 5000 });
+                        } else {
+                            toast(message);
+                        }
+                    });
+
+                    return data;
                 });
+            }
+        );
 
-                return data;
-            });
-        });
+        return () => {
+            telemetryUnsub();
+            alertUnsub();
+            sse.disconnect();
+        };
     }, [setAlerts, setTelemetry, setWindmills]);
 
     return (
         <div style={{
+            borderRadius: "20px",
             textAlign:"center",
             backgroundColor: "#0f172a",
             minHeight: "100vh",

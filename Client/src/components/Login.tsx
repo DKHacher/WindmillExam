@@ -1,23 +1,31 @@
 ﻿import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-// import { useAtom } from "jotai";
-// import {jwtAtom} from "../atoms/authAtom.ts";
-// import {restClient} from "../services/sse.ts";
+import { useAtom } from "jotai";
+import { jwtAtom } from "../atoms/authAtom.ts";
+import { authClient } from "../services/sse.ts";
 
-function Login() {
+type LoginProps = {
+    onLogin?: () => void;
+}
+
+function Login({ onLogin }: LoginProps) {
     const navigate = useNavigate();
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    // const [, setJwt] = useAtom(jwtAtom);
+    const [, setJwt] = useAtom(jwtAtom);
     const [error, setError] = useState("");
 
     const handleLogin = async () => {
-        if (!username || !password) return;
+        if (!email || !password) return;
 
         try {
-            // const token = await restClient.login(username, password);
-            // setJwt(token);
-            // sessionStorage.setItem("authToken", token);
+            const result = await authClient.login({ email, password });
+            if (!result.token) throw new Error("No token returned");
+
+            setJwt(result.token);
+            sessionStorage.setItem("authToken", result.token);
+
+            onLogin?.();
             navigate("/dashboard");
         } catch (err) {
             setError("Login failed");
@@ -25,20 +33,25 @@ function Login() {
         }
     };
 
-    const goToDashboard = () => {
-        navigate("/dashboard");
-    };
-
     return (
-        <div style={{ textAlign: "center", marginTop: "100px" }}>
-            <h1>Login</h1>
+        <div style={{
+            borderRadius: "20px",
+            textAlign:"center",
+            backgroundColor: "#0f172a",
+            minHeight: "100vh",
+            color: "white"
+        }}>
+            <h1 style={{ color: "#ffffff"}}>Login</h1>
             <input
-                placeholder="Username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                style={{ marginBottom: "1rem" }}
+                placeholder="Email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
             />
             <br />
             <input
+                style={{ marginBottom: "1rem" }}
                 placeholder="Password"
                 type="password"
                 value={password}
@@ -46,9 +59,6 @@ function Login() {
             />
             <br />
             <button onClick={handleLogin}>Login</button>
-            <div>
-                <button onClick={goToDashboard}>Go to Dashboard</button>
-            </div>
             {error && <div style={{ color: "red" }}>{error}</div>}
         </div>
     );
