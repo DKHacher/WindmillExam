@@ -4,7 +4,8 @@ using System.Text;
 using backend;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Server.Entities;
 using Server.Services;
@@ -15,9 +16,11 @@ namespace Server.Controllers;
 public class AuthController
 {
     private readonly WindmillDbContext _ctx;
-    public AuthController (WindmillDbContext ctx)
+    private readonly AppOptions _appOptions;
+    public AuthController (WindmillDbContext ctx, IOptions<AppOptions> appOptions)
     {
         _ctx = ctx;
+        _appOptions = appOptions.Value;
     }
 
     [HttpPost(nameof(Login))]
@@ -39,12 +42,11 @@ public class AuthController
             username = user.Name,
             role = user.Role
         });
-        return null;
     }   
     
     private string GenerateJwt(User user)
     {
-        var secret = new AppOptions().JwtSecret ;
+        var secret = _appOptions.JwtSecret;
 
         if (string.IsNullOrWhiteSpace(secret))
             throw new Exception("JWT_SECRET is missing.");
