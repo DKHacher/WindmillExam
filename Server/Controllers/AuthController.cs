@@ -10,7 +10,8 @@ using Server.Entities;
 using Server.Services;
 
 namespace Server.Controllers;
-
+[ApiController]
+[Route("auth")]
 public class AuthController
 {
     private readonly WindmillDbContext _ctx;
@@ -19,6 +20,7 @@ public class AuthController
         _ctx = ctx;
     }
 
+    [HttpPost(nameof(Login))]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Name == request.Email);

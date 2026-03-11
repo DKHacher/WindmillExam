@@ -9,6 +9,9 @@ using Server.Controllers;
 using Server.Services;
 using StateleSSE.AspNetCore;
 using StateleSSE.AspNetCore.GroupRealtime;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,9 +37,32 @@ builder.Services.AddEfRealtime();
 builder.Services.AddGroupRealtime();
 builder.Services.AddSingleton<IMqttCommandService, MqttCommandService>();
 builder.Services.AddSingleton<WindmillMqttController>();
+
 // ===== DbContext ===== 
 builder.Services.AddDbContextFactory<WindmillDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+
+// ===== Options =====
+builder.Services.Configure<AppOptions>(builder.Configuration.GetSection(nameof(AppOptions)));
+
+// ===== Authentication =====
+var jwtSecret = builder.Configuration["AppOptions:JwtSecret"] 
+                ?? throw new Exception("JWT_SECRET is missing.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret.Trim())),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
 
 // ===== MQTT Controllers =====
 builder.Services.AddMqttControllers();
@@ -70,11 +96,11 @@ app.UseCors(c =>
         .AllowAnyOrigin()
         .SetIsOriginAllowed(_ => true));
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 // ===== Controllers / Endpoints =====
 app.MapControllers();
-
-
 
 // ===== OpenAPI UI & TS client generation =====
 app.UseOpenApi();
