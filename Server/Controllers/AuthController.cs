@@ -14,7 +14,7 @@ using Server.Services;
 namespace Server.Controllers;
 [ApiController]
 [Route("auth")]
-public class AuthController
+public class AuthController : ControllerBase
 {
     private readonly WindmillDbContext _ctx;
     private readonly AppOptions _appOptions;
@@ -31,7 +31,7 @@ public class AuthController
         var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (user == null || user.Password != request.Password)
-            return new UnauthorizedObjectResult("Invalid email or password");
+            return  Unauthorized("Invalid email or password");
 
         var token = GenerateJwt(user);
 

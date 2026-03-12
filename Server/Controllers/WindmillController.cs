@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.DTOs;
@@ -69,6 +70,7 @@ public class WindmillController(
         await _mqttCommandService.SendCommandAsync(turbineId, action, payload);
     }
     
+    [Authorize]
     [HttpPost(nameof(SetReportInterval))]
     public async Task SetReportInterval([FromQuery] string turbineId, [FromQuery] int intervalSeconds)
     {
@@ -78,21 +80,24 @@ public class WindmillController(
         var payload = JsonSerializer.Serialize(new { action = "setInterval", value = intervalSeconds });
         await SendCommandAsync(turbineId, "setInterval", payload);
     }
-
+    
+    [Authorize]
     [HttpPost(nameof(StartTurbine))]
     public async Task StartTurbine([FromQuery] string turbineId)
     {
         var payload = JsonSerializer.Serialize(new { action = "start" });
         await SendCommandAsync(turbineId, "start", payload);
     }
-
+    
+    [Authorize]
     [HttpPost(nameof(StopTurbine))]
     public async Task StopTurbine([FromQuery] string turbineId, [FromQuery] string reason = "")
     {
         var payload = JsonSerializer.Serialize(new { action = "stop", reason });
         await SendCommandAsync(turbineId, "stop", payload);
     }
-
+    
+    [Authorize]
     [HttpPost(nameof(SetBladePitch))]
     public async Task SetBladePitch([FromQuery] string turbineId, [FromQuery] double angle)
     {
