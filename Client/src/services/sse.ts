@@ -1,12 +1,31 @@
-﻿import { StateleSSEClient } from "statele-sse"
-import {WindmillClient} from "./generated-ts-client.ts";
-// import {jwtAtom} from "../atoms/authAtom.ts";
+﻿import { StateleSSEClient } from "statele-sse";
+import { AuthClient, WindmillClient } from "./generated-ts-client.ts";
 
-export const sse = new StateleSSEClient("http://89.168.89.95:8080/sse");
-/*
-const token = get(jwtAtom);
-export const sse = new StateleSSEClient("http://89.168.89.95:8080/sse", {
-    headers: { Authorization: `Bearer ${token}` },
-});
- */
-export const restClient = new WindmillClient("http://89.168.89.95:8080");
+const BASE = "http://89.168.89.95:8080";
+
+const http = {
+    fetch: async (url: RequestInfo, init?: RequestInit) => {
+        const token = sessionStorage.getItem("authToken");
+
+        const headers = {
+            ...(init?.headers ?? {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+
+        return fetch(url, { ...init, headers });
+    },
+};
+
+export const authClient = new AuthClient(BASE, http);
+export const restClient = new WindmillClient(BASE, http);
+
+export const createSSE = (): StateleSSEClient => {
+    const token = sessionStorage.getItem("authToken");
+
+
+    const url = token
+        ? `${BASE}/sse?access_token=${encodeURIComponent(token)}`
+        : `${BASE}/sse`;
+
+    return new StateleSSEClient(url);
+};
