@@ -25,6 +25,7 @@ public class AuthController
     }
 
     [HttpPost(nameof(Login))]
+    [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status200OK)]
     public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequest request)
     {
         var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
