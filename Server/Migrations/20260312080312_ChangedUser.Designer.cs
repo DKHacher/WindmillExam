@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Server.Services;
@@ -11,9 +12,11 @@ using Server.Services;
 namespace Server.Migrations
 {
     [DbContext(typeof(WindmillDbContext))]
-    partial class WindmillDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312080312_ChangedUser")]
+    partial class ChangedUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

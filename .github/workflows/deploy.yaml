@@ -37,6 +37,7 @@ jobs:
             echo "ConnectionStrings__Postgres=Host=${{ secrets.AIVEN_HOST }};Port=${{ secrets.AIVEN_PORT }};Username=${{ secrets.AIVEN_USER }};Password=${{ secrets.AIVEN_PASS }};Database=${{ secrets.AIVEN_DB }}" > .env
   
             echo "ConnectionStrings__Redis=${{ secrets.REDIS_HOST }}:${{ secrets.REDIS_PORT }},user=${{ secrets.REDIS_USER }},password=${{ secrets.REDIS_PASS }},ssl=true,abortConnect=false" >> .env
+            echo "AppOptions__JwtSecret=${{ secrets.JWT_SECRET }}" >> .env
             echo "ASPNETCORE_URLS=http://0.0.0.0:8080" >> .env
             docker-compose down || true
             docker-compose up --build -d
