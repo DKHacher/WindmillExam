@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Server.DTOs;
 using Server.Entities;
 using Server.Services;
 
@@ -24,24 +25,21 @@ public class AuthController
     }
 
     [HttpPost(nameof(Login))]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequest request)
     {
-        var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Name == request.Email);
+        var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-        if (user == null)
-            return new UnauthorizedObjectResult("Invalid username or password");
-
-        if (user.Password != request.Password)
-            return new UnauthorizedObjectResult("Invalid username or password");
+        if (user == null || user.Password != request.Password)
+            return new UnauthorizedObjectResult("Invalid email or password");
 
         var token = GenerateJwt(user);
 
-        return new OkObjectResult(new
+        return new LoginResponseDTO()
         {
-            token,
-            username = user.Name,
-            role = user.Role
-        });
+            Token = token,
+            Email = user.Email,
+            Role = user.Role,
+        };
     }   
     
     private string GenerateJwt(User user)
@@ -56,7 +54,7 @@ public class AuthController
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role),
         };
 
